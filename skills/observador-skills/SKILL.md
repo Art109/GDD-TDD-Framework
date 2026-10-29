@@ -24,7 +24,7 @@ Ativa durante trabalho que usa skills (revisar, grelhar, refinar, planejar, escr
 - apareceu um caso que a skill não previa;
 - um jeito melhor de fazer do que a skill manda;
 - a skill afirma algo que a evidência da sessão contradiz;
-- um princípio que serve para outras skills também (verifique as "irmãs": `revisar-gdd` e `revisar-tdd`, `brainstorming-jogo` e `grilling-projeto`, etc.).
+- um princípio que serve para outras skills também (verifique as "irmãs": `revisar-gdd` e `revisar-tdd`, `brainstorming-jogo` e `grilling-projeto`, `gerar-gdd` e `gerar-tdd`, etc.).
 
 **Simplificar uma skill:** seção que nunca é usada, regra que o usuário sempre pula, regras contraditórias.
 

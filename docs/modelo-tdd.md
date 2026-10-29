@@ -19,8 +19,13 @@ Três documentos trabalham juntos: o **GDD** diz o que o jogo faz, o **guia de a
 | Riscos técnicos e spikes | Completa | Completa | Completa |
 | Testes e ferramentas | O mínimo do guia | Com build e distribuição | Com CI e telemetria |
 | ADRs, pendências, changelog | Sempre | Sempre | Sempre |
+| Metas de qualidade, restrições | Completa | Completa | Completa |
+| Visão de blocos e cenários | Diagrama + 2 cenários | Completa | Completa |
+| Conceitos transversais, dívida técnica, glossário | O que já existe | Completa | Completa |
 
 *Itens que entram só em produção (CI/CD, rede, anti-cheat, localização, migração de save entre versões) ganham a própria subseção em Sistemas quando chegarem.*
+
+**Como manter:** atualize o TDD quando o design mudar, antes de cada marco e antes de qualquer build pública. Uma ADR aceita não é reescrita: se a decisão mudar, uma ADR nova a substitui. Depois do playtest, releia as decisões principais e registre o que se confirmou e o que não.
 
 ## Resumo
 
@@ -54,6 +59,21 @@ Três documentos trabalham juntos: o **GDD** diz o que o jogo faz, o **guia de a
 **Plataformas-alvo:** \<plataforma, resolução, input, requisito mínimo>
 
 **Fora do escopo técnico:** \<o que não será construído neste estágio: rede, mods, localização…>
+
+**Objetivos e não-objetivos técnicos:** *não-objetivo é algo que poderia razoavelmente ser objetivo e foi excluído de propósito.*
+
+- Objetivo: \<ex.: trocar números de balanceamento sem recompilar nem mexer em código>
+- Não-objetivo: \<ex.: suportar mods; rodar em celular neste estágio>
+
+**Restrições:** \<o que não está em discussão: prazo, tamanho do time, plataforma, licenças de assets e de pacotes, hardware de teste>
+
+**Metas de qualidade:** *as três mais importantes, em ordem. Quando duas brigarem, vence a de cima. Cada uma vira um cenário que dá para verificar.*
+
+| Prioridade | Qualidade | Cenário verificável |
+| --- | --- | --- |
+| 1 | \<ex.: rapidez de iteração> | \<ex.: um designer muda o dano de uma arma e testa em menos de 30 s, sem programador> |
+| 2 | \<ex.: performance> | \<ex.: 60 FPS estáveis na cena mais cheia, na máquina de referência> |
+| 3 | \<ex.: reaproveitamento> | \<ex.: os componentes de combate passam no teste do projeto vazio> |
 
 ## Adaptação do guia de arquitetura
 
@@ -107,6 +127,18 @@ Três documentos trabalham juntos: o **GDD** diz o que o jogo faz, o **guia de a
 
 **Lacunas:** \<mecânicas do GDD ainda sem sistema técnico, cada uma com o motivo ou a pergunta que falta>
 
+## Visão de blocos e cenários
+
+**Blocos:** *um diagrama de como as partes deste jogo se encaixam: Main, sistemas, levels, sub-cenas e os principais componentes, com quem chama quem e quem avisa quem. Um nível de detalhe só; o detalhe de cada sistema fica na próxima seção.*
+
+\<diagrama>
+
+**Cenários de execução:** *de dois a quatro fluxos que mais podem dar errado, passo a passo, com os nós e sinais envolvidos. Escolha os que cruzam vários sistemas.*
+
+1. \<ex.: o jogador encosta num inimigo → o inimigo emite `encounter_requested` → o Wiring chama `open_overlay(batalha)` → o mundo pausa → a batalha devolve o resultado → o Wiring aplica XP e remove o inimigo>
+2. \<ex.: troca de level com save automático>
+3. \<ex.: morte do player no meio de uma transição>
+
 ## Sistemas técnicos
 
 *Uma subseção por sistema da tabela de rastreabilidade. O suficiente para dividir em tarefas sem adivinhar.*
@@ -153,6 +185,20 @@ Três documentos trabalham juntos: o **GDD** diz o que o jogo faz, o **guia de a
 
 *Todo número de balanceamento do GDD mora num `Data`. Nenhum valor de gameplay no código.*
 
+## Conceitos transversais
+
+*Decisões que valem para o jogo todo. Uma linha cada; o que o guia já decide, só aponte para ele.*
+
+| Conceito | Como este jogo faz |
+| --- | --- |
+| Save e versão do save | \<o que salva, quando, formato, migração entre versões> |
+| Input e rebinding | \<ações, dispositivos, troca de controle> |
+| Pausa e tempo | \<o que para, o que continua, tempo de jogo x tempo real> |
+| Erros e falhas | \<o que acontece se um level, um save ou um asset não carregar> |
+| Logs e depuração | \<ferramentas de debug, como ligar e desligar> |
+| Localização e texto | \<onde ficam os textos, mesmo que só exista um idioma> |
+| Acessibilidade | \<opções previstas e onde entram na arquitetura> |
+
 ## Orçamentos de performance
 
 *Números, não "deve rodar bem". Medidos na máquina de referência, no pior caso do jogo (a cena mais cheia).*
@@ -195,6 +241,12 @@ Três documentos trabalham juntos: o **GDD** diz o que o jogo faz, o **guia de a
 | \<ex.: IA tática dos inimigos> | \<alta / média / baixa> | \<alto: sem ela o combate não é testável> | \<spike de 2 dias com regras fixas> | \<inimigos com comportamento scriptado> |
 |  |  |  |  |  |
 
+**Dívida técnica aceita:** *atalhos tomados de propósito no protótipo. Registrada, ela é uma decisão; esquecida, vira bug.*
+
+| Atalho | Por que agora | Custo de pagar | Pagar quando |
+| --- | --- | --- | --- |
+| \<ex.: sem save, estado só em memória> | \<ex.: o playtest dura uma sessão> | \<ex.: 2 dias> | \<ex.: antes do vertical slice> |
+
 ## Testes e ferramentas
 
 **Testes:** \<o que é obrigatório pela regra do guia (componentes de cálculo) e o que este jogo acrescenta, ex.: "regras de linha com teste para cada caso-limite do GDD">
@@ -215,7 +267,7 @@ Três documentos trabalham juntos: o **GDD** diz o que o jogo faz, o **guia de a
 
 | Nº | Decisão | Status | Data |
 | --- | --- | --- | --- |
-| ADR-001 | \<título> | \<proposta / aceita / substituída por ADR-00X> | \<AAAA-MM-DD> |
+| ADR-001 | \<título> | \<proposta / aceita / obsoleta / substituída por ADR-00X> | \<AAAA-MM-DD> |
 
 ### ADR-001: \<título>
 
@@ -225,7 +277,7 @@ Três documentos trabalham juntos: o **GDD** diz o que o jogo faz, o **guia de a
 
 **Alternativas:** \<o que mais foi considerado e por que não>
 
-**Consequências:** \<o que fica mais fácil, o que fica mais difícil, e o que passa a ser obrigatório>
+**Consequências:** \<todas, inclusive as negativas e as neutras: o que fica mais fácil, o que fica mais difícil, e o que passa a ser obrigatório>
 
 ## Pendências do GDD
 
@@ -234,8 +286,25 @@ Três documentos trabalham juntos: o **GDD** diz o que o jogo faz, o **guia de a
 - [ ] \<ex.: o tempo da fazenda segue o tempo de jogo ou o tempo real?> — trava: \<ClockSystem, save>
 - [ ] \<pergunta> — trava:
 
+## Glossário técnico
+
+*Os termos do jogo ficam no glossário do GDD; aqui, só os que existem no código. O nome de uma classe ou sistema segue o termo do GDD.*
+
+| Termo | Significado | Termo do GDD equivalente |
+| --- | --- | --- |
+| \<ex.: `InitiativeQueue`> | \<fila que decide quem age a seguir> | \<ex.: ordem de turno> |
+
 ## Changelog
 
 | Versão | Data | O que mudou |
 | --- | --- | --- |
 | v0.1 | \<AAAA-MM-DD> | Primeira versão, a partir do GDD v\<n> |
+
+## Referências do modelo
+
+*Em que este modelo se apoia. Apague ao usar o modelo num jogo.*
+
+- [arc42](https://docs.arc42.org/home/): metas de qualidade com cenários, restrições, visão de blocos, cenários de execução, conceitos transversais, riscos e dívida técnica, glossário.
+- [Design Docs at Google](https://www.industrialempathy.com/posts/design-docs-at-google/), Malte Ubl: objetivos e não-objetivos, alternativas consideradas, documento atualizado antes de lançar e revisitado depois.
+- [Formato de ADR de Michael Nygard](https://faq.arc42.org/questions/C-9-3/): contexto, decisão, status (proposta, aceita, obsoleta, substituída) e todas as consequências.
+- [The Anatomy of a Design Document](https://www.gamedeveloper.com/design/the-anatomy-of-a-design-document-part-1-documentation-guidelines-for-the-game-concept-and-proposal), Tim Ryan: análise técnica com riscos, impacto no cronograma e alternativas.

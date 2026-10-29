@@ -7,10 +7,10 @@ description: Cria o TDD de um jogo a partir do Modelo de TDD, do GDD e do guia d
 
 Cria o TDD que diz como **este** jogo aplica o guia de arquitetura aos sistemas do GDD. O TDD não repete as regras do guia: registra como o jogo as aplica e onde se desvia.
 
-**Documentos (docs do Claude; ler com as ferramentas de docs):**
-- Modelo de TDD — https://claude.ai/artifact/WeAqiznSvqvXFGYzH25cBH (cópia no repositório: `docs/modelo-tdd.md`)
-- Arquitetura Modular para Godot — https://claude.ai/artifact/LgdBwNCGaE5RTLXgrHBzJD (cópia no repositório: `docs/arquitetura-godot.md`)
-- Arquitetura Modular para Unity — https://claude.ai/artifact/5zGYdcdfMFWVWF4CaAYZZQ (cópia no repositório: `docs/arquitetura-unity.md`)
+**Documentos (docs do Claude; ler com as ferramentas de docs; cópias em markdown no repositório GDD-TDD-Framework, pasta `docs/`):**
+- Modelo de TDD — https://claude.ai/artifact/WeAqiznSvqvXFGYzH25cBH (`docs/modelo-tdd.md`)
+- Arquitetura Modular para Godot — https://claude.ai/artifact/LgdBwNCGaE5RTLXgrHBzJD (`docs/arquitetura-godot.md`)
+- Arquitetura Modular para Unity — https://claude.ai/artifact/5zGYdcdfMFWVWF4CaAYZZQ (`docs/arquitetura-unity.md`)
 - Mapa do kit: `claude/kit-gdd-tdd.md` no Project.
 
 ## Entrada
@@ -40,4 +40,4 @@ Pergunte só o que muda a arquitetura e não está no GDD nem no código (ex.: "
 
 ## Regras
 - Nunca altere o modelo nem os guias. Se a adaptação revelar uma regra do guia que não funciona, anote como observação (`observador-skills`) e diga ao usuário; mudar o guia é decisão dele.
-- Se um documento não puder ser lido, diga qual e peça o link.
+- Se um documento não puder ser lido, use a cópia do repositório, ou diga qual falta e peça o link.

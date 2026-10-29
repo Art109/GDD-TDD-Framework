@@ -7,7 +7,7 @@ description: Cria um GDD novo a partir do Modelo de GDD do usuário, com as seç
 
 Cria o GDD de um jogo seguindo o modelo do usuário. O modelo é a fonte da verdade da estrutura: leia-o sempre, não reconstrua de memória.
 
-**Modelo:** Modelo de GDD — https://claude.ai/artifact/JUy7Z1va5xa7u3mLbagmcp (cópia no repositório: `docs/modelo-gdd.md`) (doc do Claude; ler com as ferramentas de docs). Mapa do kit: documento `claude/kit-gdd-tdd.md` do Project.
+**Modelo:** Modelo de GDD — https://claude.ai/artifact/JUy7Z1va5xa7u3mLbagmcp (doc do Claude; ler com as ferramentas de docs). Cópia em markdown no repositório GDD-TDD-Framework: `docs/modelo-gdd.md`. Mapa do kit: documento `claude/kit-gdd-tdd.md` do Project.
 
 ## Entrada
 - O material do jogo: resultado de `brainstorming-jogo` ou `grilling-projeto` na conversa, um pitch, ou um GDD antigo em outro formato (PDF, export de ferramenta, doc).
@@ -36,4 +36,4 @@ Cria o GDD de um jogo seguindo o modelo do usuário. O modelo é a fonte da verd
 
 ## Regras
 - Nunca altere o Modelo de GDD; o GDD é um documento novo.
-- Se o modelo não puder ser lido, diga isso e peça o link, em vez de improvisar a estrutura.
+- Se o modelo não puder ser lido, use a cópia do repositório, ou diga isso e peça o link, em vez de improvisar a estrutura.

@@ -7,6 +7,8 @@ description: Analisa e critica um Game Design Document (GDD): pilares, core loop
 
 Revisão crítica de um GDD antes de virar TDD ou código. O objetivo não é elogiar nem reescrever: é encontrar o que vai quebrar, confundir ou estourar o escopo.
 
+**Referência de estrutura:** Modelo de GDD — https://claude.ai/artifact/JUy7Z1va5xa7u3mLbagmcp (cópia em `docs/modelo-gdd.md` do repositório GDD-TDD-Framework). A tabela "Como usar" do modelo diz o que cada estágio exige. Um GDD em outro formato é revisado pelo conteúdo, não pelos nomes das seções.
+
 ## Entrada
 - O GDD (arquivo, doc ou texto colado). Ler **inteiro** antes de opinar.
 - Pergunte (ou assuma e declare) o **estágio**: `protótipo` (padrão), `vertical slice` ou `produção`. O estágio define o rigor: num protótipo, ausência de monetização/localização é OK; ausência de core loop e pilares não é.
@@ -15,19 +17,23 @@ Revisão crítica de um GDD antes de virar TDD ou código. O objetivo não é el
 ## Processo
 
 1. **Completude** – tabela de seções: Presente / Fraca / Ausente.
-   - Obrigatórias em qualquer estágio: Visão/Pitch, Pilares de design (3–5), Público-alvo, Core loop, Mecânicas principais, Controles/plataforma, Escopo do protótipo (o que entra e o que NÃO entra).
-   - Vertical slice+: Progressão, Economia/fórmulas, Level/mundo, Arte e áudio (direção), UI/UX, Onboarding, Critérios de aceitação.
-   - Produção+: Narrativa, Monetização, Acessibilidade, Localização, Análise competitiva, Riscos.
-   - Seção com título mas sem conteúdo útil conta como **Fraca**.
-2. **Pilares** – cada mecânica deve servir a pelo menos um pilar. Mecânicas sem pilar = *órfãs*. Pilar sem mecânica = *pilar vazio*. Monte uma matriz pilar × mecânica.
-3. **Core loop** – está descrito como ciclo (ação → recompensa → motivo para repetir)? Há loops secundários competindo com o principal? Dá para jogar o loop em 30 segundos num protótipo de papel?
-4. **MDA** – as Mecânicas geram as Dinâmicas que produzem as Estéticas declaradas (desafio, descoberta, expressão, comunhão, fantasia…)? Aponte desconexões.
-5. **Psicologia do jogador** – Autonomia, Competência, Relação (SDT); curva de flow e dificuldade; onboarding ensina jogando?
-6. **Consistência interna** – fórmulas vs. regras descritas, tom vs. arte, dificuldade vs. público, controles vs. plataforma, números repetidos com valores diferentes.
-7. **Casos-limite e estratégias dominantes** – o que acontece se o jogador pular etapas, acumular recurso, ignorar um sistema, explorar uma combinação? Existe uma estratégia que torna o resto irrelevante?
-8. **Implementabilidade** – regras precisas o bastante para programar? Critérios de aceitação mensuráveis? ("ser divertido" ou "bem balanceado" → reescrever como métrica testável, ex.: "jogador médio vence a fase 1 em 2–4 tentativas").
-9. **Escopo** – conte sistemas e volume de conteúdo; compare com time/prazo; aponte complexidade escondida (multiplayer, save, IA, física, procedural, UGC).
-10. **Diferencial** – compare com 2–3 jogos parecidos. O gancho cabe num trailer de 30s? A diferença é de experiência ou só cosmética?
+   - Obrigatórias em qualquer estágio: Uma página (resumo), Visão (pitch, fantasia do jogador, **metas de experiência**, um momento de jogo), Pilares (3–5, cada um com o que exclui), Público, Objetivo do protótipo (hipótese + metas com forma de medir), Escopo dentro/fora com o porquê, Core loop, Regras dos sistemas do loop, Controles/plataforma, Plano de playtest, Riscos de design, Perguntas em aberto, Registro de decisões.
+   - Vertical slice+: Progressão e economia, Conteúdo, Mundo e narrativa, Fluxo do jogo, Arte e áudio completos, Lista de assets com esforço, Onboarding, Glossário.
+   - Produção+: Acessibilidade, Localização, Anexo de negócio e mercado completo, Roadmap.
+   - Seção com título mas sem conteúdo útil conta como **Fraca**. Texto marcado "inferido" ou "a definir" no corpo conta como Fraca e vira achado.
+2. **Uma página** – bate com o resto do documento? Cabe numa página? Se não cabe, o escopo provavelmente está grande demais.
+3. **Metas de experiência** – descrevem sensações, não features? Cada uma tem como ser verificada no playtest? Cada mecânica principal serve a pelo menos uma?
+4. **Pilares** – cada mecânica deve servir a pelo menos um pilar. Mecânicas sem pilar = *órfãs*. Pilar sem mecânica = *pilar vazio*. Pilar que não exclui nada não ajuda a decidir. Monte uma matriz pilar × mecânica.
+5. **Core loop** – está descrito como ciclo (ação → recompensa → motivo para repetir)? Há loops secundários competindo com o principal? Dá para jogar o loop em 30 segundos num protótipo de papel?
+6. **MDA** – as Mecânicas geram as Dinâmicas que produzem as Estéticas declaradas (desafio, descoberta, expressão, comunhão, fantasia…)? Aponte desconexões.
+7. **Psicologia do jogador** – Autonomia, Competência, Relação (SDT); curva de flow e dificuldade; onboarding ensina jogando?
+8. **Consistência interna** – fórmulas vs. regras descritas, tom vs. arte, dificuldade vs. público, controles vs. plataforma, números repetidos com valores diferentes, dependências entre sistemas citadas dos dois lados, termos usados de forma diferente do glossário.
+9. **Casos-limite e estratégias dominantes** – o que acontece se o jogador pular etapas, acumular recurso, ignorar um sistema, explorar uma combinação? Existe uma estratégia que torna o resto irrelevante?
+10. **Implementabilidade** – cada ficha de sistema tem regras precisas, fórmulas, parâmetros com faixa, casos-limite, critérios de aceitação testáveis, dependências, alternativas consideradas e status? ("ser divertido" ou "bem balanceado" → reescrever como métrica testável, ex.: "jogador médio vence a fase 1 em 2–4 tentativas").
+11. **Escopo** – conte sistemas e volume de conteúdo (use a lista de assets, se houver); compare com time/prazo; aponte complexidade escondida (multiplayer, save, IA, física, procedural, UGC). Item de escopo sem porquê é achado.
+12. **Higiene do documento vivo** – mecânica cortada ainda descrita no corpo? Lacunas espalhadas fora de Perguntas em aberto? Ideias sem decisão misturadas ao escopo em vez de Ideias adiadas? Detalhe técnico (engine, arquitetura) que deveria estar no TDD?
+13. **Estágio** – o documento cumpre o critério para avançar ao próximo estágio? Se o usuário quer avançar, diga o que falta.
+14. **Diferencial** – compare com 2–3 jogos parecidos. O gancho cabe num trailer de 30s? A diferença é de experiência ou só cosmética?
 
 ## Saída (relatório)
 
@@ -45,6 +51,7 @@ Escopo estimado: P | M | G | GG
 ### Menor
 ### Sugestão
 ## Matriz pilar × mecânica
+## Metas de experiência × playtest (cada meta e como será verificada)
 ## Perguntas em aberto para o designer
 ## Próximos passos (priorizados, máx. 5)
 ```

@@ -26,6 +26,8 @@ O GDD cresce com o estágio. No protótipo, ele responde a uma pergunta e corta 
 | Riscos de design | Completa | Completa | Completa |
 | Perguntas, decisões, changelog | Sempre | Sempre | Sempre |
 | Anexo: negócio e mercado | 3 linhas | Completa | Completa |
+| Uma página | Sempre | Sempre | Sempre |
+| Ideias adiadas, glossário | Sempre | Sempre | Sempre |
 
 Três regras valem em todo estágio:
 
@@ -33,13 +35,50 @@ Três regras valem em todo estágio:
 2. **O que não está decidido vira pergunta**, na seção Perguntas em aberto. Nada de "a definir" espalhado pelo texto.
 3. **Toda mecânica serve a um pilar.** Mecânica sem pilar sai do escopo ou ganha um pilar.
 
+**Para avançar de estágio:**
+
+| De → para | Critério |
+| --- | --- |
+| Protótipo → Vertical slice | A hipótese central foi confirmada pelas metas do playtest, e o core loop funciona sem explicação externa |
+| Vertical slice → Produção | Um trecho jogável com qualidade final representa o jogo; custo por unidade de conteúdo (fase, inimigo, item) foi medido |
+
+**Como manter o documento vivo:**
+
+- Um dono (quem aprova mudanças), mesmo em projeto solo.
+- Revisão a cada marco: o que o build mostrou que o documento ainda não diz? Seção desatualizada ganha a marca `[DESATUALIZADA]` até ser corrigida.
+- Mecânica cortada sai do corpo do documento e vira uma linha no Registro de decisões. Texto vivo de algo cortado faz alguém implementá-lo.
+- Versão nomeada (v0.2, v0.3…) a cada marco, registrada no Changelog.
+
+## Uma página
+
+*Preencha por último e mantenha atualizada: é a parte que todo mundo lê. Prefira um diagrama do core loop com notas curtas a parágrafos. Se não couber numa página, o escopo está grande demais.*
+
+|  |  |
+| --- | --- |
+| **Pitch** | \<uma frase> |
+| **Fantasia do jogador** | \<uma frase> |
+| **Metas de experiência** | \<as 2 ou 3 sensações principais> |
+| **Pilares** | \<nomes dos pilares> |
+| **Core loop** | \<os passos, ou o diagrama logo abaixo> |
+| **Hipótese do protótipo** | \<a pergunta que o playtest responde> |
+| **Dentro / fora** | \<o essencial do Escopo, em duas linhas> |
+
 ## Visão
 
 *Uma página no máximo. Quem lê só esta seção precisa saber que jogo é este e por que ele existe.*
 
 **Pitch:** \<uma ou duas frases: o que o jogador faz e o que torna o jogo diferente>
 
+**Um momento de jogo:** \<um parágrafo na segunda pessoa, descrevendo o que você vê, decide e sente num momento típico. Sem falar de botões ou menus. Ex.: "Você entra na sala e vê três atiradores atrás de cobertura…">
+
 **Fantasia do jogador:** \<o que o jogador sente ou se torna, em uma frase. Ex.: "comandar um grupo pequeno que sobrevive por esperteza, não por força">
+
+**Metas de experiência do jogador:** *o que o jogador deve sentir, não o que o jogo tem. As mecânicas existem para produzir estas metas, e o playtest verifica cada uma.*
+
+| Meta de experiência | Onde aparece no jogo | Como verificar no playtest |
+| --- | --- | --- |
+| \<ex.: tensão antes de cada decisão> | \<ex.: escolha de alvo com recurso escasso> | \<ex.: testadores hesitam antes de agir; nota ≥ 4 de 5 em "senti pressão"> |
+|  |  |  |
 
 **Referências:**
 
@@ -91,16 +130,16 @@ Três regras valem em todo estágio:
 
 *Uma linha por área. Se uma área não entra no protótipo, a coluna "Dentro" diz "nada".*
 
-| Área | Dentro do protótipo | Fora do protótipo |
-| --- | --- | --- |
-| Personagens / unidades | \<quantos, com o quê> | \<o resto> |
-| Inimigos / desafios |  |  |
-| Níveis / mapas |  |  |
-| Progressão |  |  |
-| Narrativa |  |  |
-| Interface |  |  |
-| Arte e áudio | \<greybox, placeholder ou assets prontos> |  |
-| Modo de jogo |  |  |
+| Área | Dentro do protótipo | Fora do protótipo | Por quê |
+| --- | --- | --- | --- |
+| Personagens / unidades | \<quantos, com o quê> | \<o resto> | \<a hipótese, a decisão ou o dado que justifica> |
+| Inimigos / desafios |  |  |  |
+| Níveis / mapas |  |  |  |
+| Progressão |  |  |  |
+| Narrativa |  |  |  |
+| Interface |  |  |  |
+| Arte e áudio | \<greybox, placeholder ou assets prontos> |  |  |
+| Modo de jogo |  |  |  |
 
 **Regra de escopo:** \<ex.: "qualquer item novo só entra se tirar outro do mesmo tamanho, ou se for necessário para responder à hipótese central">
 
@@ -125,6 +164,14 @@ Três regras valem em todo estágio:
 ### Sistema: \<nome>
 
 **Para que serve:** \<o problema de design que resolve e o pilar que atende>
+
+**Promessa ao jogador:** \<o que este sistema faz o jogador sentir ou decidir, ligado a uma meta de experiência>
+
+**Depende de:** \<outros sistemas que ele lê ou afeta. Se A depende de B, a seção de B também cita A>
+
+**Alternativas consideradas:** <2 ou 3 formas de resolver o mesmo problema, e por que esta foi a escolhida>
+
+**Status:** \<rascunho / pronto para implementar / implementado / validado em playtest>
 
 **Regras:**
 
@@ -209,6 +256,11 @@ Três regras valem em todo estágio:
 
 **Interface:** \<o que a HUD mostra sempre, o que aparece só quando importa, e as telas principais>
 
+**Fluxo do jogo:** *o caminho do jogador da abertura do jogo até o fim de uma sessão, tela por tela. Um diagrama de estados costuma ser mais claro que texto.*
+
+1. \<ex.: tela inicial → seleção de personagem → partida → resultado → hub → nova partida>
+2. \<de onde se pausa, de onde se sai, o que acontece ao perder>
+
 **Onboarding:** \<como o jogador aprende jogando: o que é ensinado primeiro, o que fica para depois, e o que nunca precisa de tutorial>
 
 **Legibilidade:** \<como o jogador entende o que está acontecendo: aviso antes de ataques fortes, silhuetas e cores distintas por tipo, feedback de acerto>
@@ -230,6 +282,12 @@ Três regras valem em todo estágio:
 **Fonte dos assets:** \<produção própria, pacotes prontos, greybox; licenças>
 
 **Risco de consistência:** \<se misturar assets de fontes diferentes, como unificar: paleta, color grading, escala de pixel>
+
+**Lista de assets:** *quanto conteúdo o escopo exige. É a conta que mais derruba prazos.*
+
+| Asset | Quantidade no protótipo | Fonte | Esforço estimado |
+| --- | --- | --- | --- |
+| \<sprites de personagem, modelos, animações, músicas, SFX, textos> | \<n> | \<próprio / pacote / placeholder> | \<horas ou P/M/G> |
 
 ## Plano de playtest
 
@@ -293,6 +351,22 @@ Três regras valem em todo estágio:
 | --- | --- | --- | --- |
 | \<AAAA-MM-DD> | \<ex.: batalha em cena separada> | \<ex.: combate no mapa, estilo Chrono Trigger> | \<ex.: 3x mais trabalho na transição, sem ganho para a hipótese> |
 
+## Ideias adiadas
+
+*Boas ideias que não entram agora. Ficam aqui, fora do corpo do documento, para não crescerem o escopo sem decisão.*
+
+| Ideia | Por que não agora | O que faria ela entrar |
+| --- | --- | --- |
+| \<ideia> | \<custo, risco, não serve à hipótese> | \<gatilho: ex.: "se o playtest mostrar que o loop cansa em 3 runs"> |
+
+## Glossário
+
+*Os termos próprios do jogo, com uma definição curta. Use os mesmos nomes no GDD, no TDD e no código.*
+
+| Termo | Significado |
+| --- | --- |
+| \<ex.: run> | \<ex.: uma tentativa, do hub até a morte ou a vitória> |
+
 ## Changelog
 
 | Versão | Data | O que mudou |
@@ -322,3 +396,14 @@ Três regras valem em todo estágio:
 | \<licenças, assets, música, taxas de loja, marketing> | \<valor + moeda> |
 
 **Lançamento:** \<fases (demo, acesso antecipado, lançamento) e o que dispara cada uma>
+
+## Referências do modelo
+
+*Em que este modelo se apoia. Apague ao usar o modelo num jogo.*
+
+- [The Anatomy of a Design Document](https://www.gamedeveloper.com/design/the-anatomy-of-a-design-document-part-1-documentation-guidelines-for-the-game-concept-and-proposal), Tim Ryan: o conceito em 1–2 páginas, a descrição na segunda pessoa, os diferenciais sem obviedades.
+- [One-page designs](https://www.gamedeveloper.com/design/video-one-page-designs), Stone Librande (GDC 2010): a seção Uma página; se não cabe, é sinal para cortar.
+- [Game Design Workshop](https://gamedeveloper.com/design/book-excerpt-game-design-workshop), Tracy Fullerton: metas de experiência antes das mecânicas, protótipo e playtest desde o início.
+- [Como fazer um GDD](https://gamedesignskills.com/game-design/make-game-design-document/), Alexander Brazie: GDD enxuto, um resumo por sistema com problema, alternativas e prioridades.
+- [A GDD template for the indie developer](https://www.gamedeveloper.com/design/a-gdd-template-for-the-indie-developer): fluxo do jogo, lista de assets, apêndice de ideias.
+- [Living GDD](https://allo.io/blog/en/game-design-document-template/) e [Lean GDD](https://www.wayline.io/blog/lean-gdd-game-design-documentation): escopo ligado a decisões, documento em sincronia com o build, mecânica cortada fora do texto.

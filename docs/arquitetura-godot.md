@@ -13,7 +13,7 @@ Regras em uma linha cada:
 1. Duas camadas: `components/` (portável) e `game/` (o jogo). `core/` só existe quando dois componentes precisam de fato compartilhar um tipo.
 2. Componente só referencia a própria pasta. Nada de path, uid ou classe de fora.
 3. Nós de componente têm sufixo `Component` (`HealthComponent`, `HitboxComponent`); Resources de dados, sufixo `Data`.
-4. O que o componente exige do projeto fica na própria classe: ações do InputMap como `@export`; camadas de física configuradas no Inspector da cena e listadas no doc comment.
+4. O que o componente exige do projeto fica na própria classe: ações do InputMap como `@export`; camadas de física configuradas no Inspector da cena e listadas no doc comment. O que faltar aparece como aviso no editor, pela função `_get_configuration_warnings()`.
 5. Comentários em inglês, em `##`. O doc comment no topo do script substitui o README.
 6. Sinais sobem, chamadas descem. Cada cena liga os próprios filhos; o jogo liga os componentes.
 7. Injeção de um jeito só: `@export` com valor padrão; `setup()` apenas para dependências criadas em runtime.
@@ -56,6 +56,8 @@ Main (Node2D ou Node3D)                ← run/main_scene, nunca destruída; só
 ```
 
 `World`, `Entities`, `Effects` e `Overlay` são do mesmo tipo da `Main`: `Node2D` num jogo 2D, `Node3D` num 3D. Cada um tem seu ciclo de vida: o level é trocado, só o player atravessa a troca (o resto de `%Entities` e todo `%Effects` é limpo), os efeitos somem sozinhos e a sub-cena dura até emitir `finished`.
+
+É a estrutura de ponto de entrada que a [documentação oficial](https://docs.godotengine.org/en/stable/tutorials/best_practices/scene_organization.html) sugere (`Main` → `World` + GUI, trocando os filhos de `World` ao mudar de level), com três acréscimos: `Entities` e `Effects` separados do mapa, `Overlay` para sub-cenas e `Wiring` para as ligações.
 
 Regras:
 
@@ -273,17 +275,30 @@ signal direction_changed(direction: Vector2)
 @export var action_down: StringName = &"move_down"
 ```
 
+### Exigências visíveis no editor
+
+O doc comment diz o que o componente exige; o editor pode mostrar isso sozinho. Com `@tool` e `_get_configuration_warnings()`, o nó ganha o ícone de aviso na árvore de cena quando falta algo, como o `Area2D` sem `CollisionShape2D`. É a recomendação oficial para dependências de cena: a cena se documenta pelo próprio código.
+
 ```gdscript
+@tool
 @icon("res://components/health/health_icon.svg")
 class_name HurtboxComponent
 extends Area2D
 ## Area that receives hits. Emits [signal hit_received].
-##
-## Requires from the project: set collision_layer to the owner's hurtbox layer
-## and collision_mask to the opposing hitbox layer, in the Inspector.
 
 signal hit_received(damage: int)
+
+
+func _get_configuration_warnings() -> PackedStringArray:
+	var warnings: PackedStringArray = []
+	if collision_layer == 0:
+		warnings.append("Set collision_layer to the owner's hurtbox layer.")
+	if get_children().filter(func(c: Node) -> bool: return c is CollisionShape2D).is_empty():
+		warnings.append("Add a CollisionShape2D child.")
+	return warnings
 ```
+
+Regras para `@tool`: o script roda no editor, então lógica de jogo em `_process` ou `_physics_process` começa com `if Engine.is_editor_hint(): return`. Quando um `@export` muda o que é válido, o setter chama `update_configuration_warnings()`. Use em componentes com exigências de cena (camadas, filhos, ações de input); componentes que só calculam não precisam.
 
 ### Estrutura de uma pasta
 
@@ -299,6 +314,17 @@ components/health/
 └── tests/
     └── test_health_component.gd
 ```
+
+### Convenções de nomes e pastas
+
+As da [documentação oficial](https://docs.godotengine.org/en/stable/tutorials/best_practices/project_organization.html), que evitam erros só visíveis no build exportado:
+
+- Pastas e arquivos em `snake_case` (o sistema de arquivos do `.pck` diferencia maiúsculas, o Windows não). Exceção: scripts C# levam o nome da classe, em PascalCase.
+- Nós em PascalCase, como os nós nativos.
+- Sinais com verbo no passado: `died`, `item_collected`, `exit_requested`.
+- Código e assets de terceiros em `addons/` na raiz, mesmo que não sejam plugins.
+- Assets ficam perto da cena que os usa: os sprites do boss em `game/entities/boss/`, não numa pasta global de sprites.
+- Pastas que o Godot não deve importar (como `docs/`) recebem um arquivo vazio `.gdignore`.
 
 ## Comunicação e injeção
 
@@ -332,6 +358,8 @@ O valor padrão faz a cena rodar sozinha com F6. Exemplo: `@export var data: Hea
 - `get_node()` para fora do próprio nó, caminhos `/root/...` e `get_tree().current_scene`.
 - Achar dependência por grupo global (`get_first_node_in_group("player")`).
 - Passar o `GameContext` inteiro para um componente.
+
+**Por que mais estrito que a documentação oficial.** A [documentação do Godot](https://docs.godotengine.org/en/stable/tutorials/best_practices/autoloads_versus_regular_nodes.html) aceita autoload para sistemas que guardam só os próprios dados, precisam ser globais e funcionam isolados (ex.: quest, diálogo), e desaconselha os que mexem nos dados de outros. Este guia vai além e proíbe todos, pelos mesmos motivos que ela aponta: estado global, acesso de qualquer lugar e bug sem dono. O custo é repassar referências pelo `GameContext`. Um projeto que precisar de autoload registra o desvio no TDD, com o motivo.
 
 ### Portão e outras regras de jogo
 
@@ -657,3 +685,10 @@ As regras valem para qualquer Godot 4.x. Alguns detalhes dependem da versão; se
 | GUT | 9.x para Godot 4 | — |
 
 Referência atual: Godot 4.7. Ao migrar de versão, revise esta tabela e o pre-commit.
+
+## Referências
+
+- [Scene organization](https://docs.godotengine.org/en/stable/tutorials/best_practices/scene_organization.html): cenas sem dependências, injeção pelo pai, sinais no passado, `_get_configuration_warnings()`, estrutura `Main` → `World` + GUI.
+- [Autoloads versus regular nodes](https://docs.godotengine.org/en/stable/tutorials/best_practices/autoloads_versus_regular_nodes.html): os problemas de estado e acesso globais, e quando o autoload é aceitável.
+- [Project organization](https://docs.godotengine.org/en/stable/tutorials/best_practices/project_organization.html): `snake_case`, PascalCase nos nós, `addons/`, `.gdignore`, maiúsculas no build exportado.
+- [Arquitetura Modular para Unity](arquitetura-unity.md): o guia irmão, com os mesmos princípios.

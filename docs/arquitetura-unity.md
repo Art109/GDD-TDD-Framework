@@ -302,7 +302,7 @@ Copie a pasta do componente (com o `.asmdef` e os `.meta`) para um projeto Unity
 8. Cada componente vive num `namespace` próprio (`Components.Health`), para não colidir com código do jogo nem de pacotes.
 
 ```csharp
-// Components/Movement/PlayerInputComponent.cs
+// Components/Movement/Runtime/PlayerInputComponent.cs
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -326,40 +326,78 @@ namespace Components.Movement
 }
 ```
 
+### Exigências visíveis no editor
+
+O doc comment diz o que o componente exige; a Unity pode garantir parte disso e avisar o resto. Três ferramentas, da mais forte para a mais fraca:
+
+1. **`[RequireComponent(typeof(T))]`**: a Unity adiciona o componente exigido e impede que ele seja removido.
+2. **`Reset()`**: roda quando o componente é adicionado no editor; serve para deixar a configuração padrão certa (ex.: marcar o collider como trigger).
+3. **`OnValidate()`**: roda a cada mudança no Inspector; avisa no Console, com o objeto clicável, quando algo está errado.
+
 ```csharp
-// Components/Health/HurtboxComponent.cs
+// Components/Health/Runtime/HurtboxComponent.cs
+using UnityEngine;
+
 namespace Components.Health
 {
-    /// <summary>
-    /// Trigger that receives hits. Raises HitReceived.
-    /// Requires from the project: a trigger collider on this object, on the owner's
-    /// hurtbox layer, set in the Inspector. HitboxComponent calls ReceiveHit.
-    /// </summary>
+    /// <summary>Trigger that receives hits. Raises HitReceived.</summary>
+    [RequireComponent(typeof(Collider))] // Collider2D num jogo 2D
     public sealed class HurtboxComponent : MonoBehaviour
     {
         public event System.Action<int> HitReceived;
+
+        private void Reset() => GetComponent<Collider>().isTrigger = true;
+
+        private void OnValidate()
+        {
+            if (TryGetComponent(out Collider hurtbox) && !hurtbox.isTrigger)
+                Debug.LogWarning($"{name}: HurtboxComponent needs a trigger collider.", this);
+        }
 
         public void ReceiveHit(int damage) => HitReceived?.Invoke(damage);
     }
 }
 ```
 
+Campos de configuração levam `[Tooltip("...")]` com a mesma explicação do doc comment, para quem só olha o Inspector.
+
 ### Estrutura de uma pasta
 
 ```
 Components/Health/
-├── Components.Health.asmdef        ← só Core e pacotes; Auto Referenced desligado
-├── HealthComponent.cs              ← /// <summary> no topo, em inglês
-├── HitboxComponent.cs
-├── HurtboxComponent.cs
-├── HealthData.cs                   ← tipo de ScriptableObject (só campos)
-├── health_icon.png
+├── Runtime/
+│   ├── Components.Health.asmdef            ← só Core e pacotes; Auto Referenced desligado
+│   ├── HealthComponent.cs                  ← /// <summary> no topo, em inglês
+│   ├── HitboxComponent.cs
+│   ├── HurtboxComponent.cs
+│   └── HealthData.cs                       ← tipo de ScriptableObject (só campos)
+├── Editor/                                 ← só se houver inspector ou ferramenta de editor
+│   ├── Components.Health.Editor.asmdef     ← plataforma: só Editor; referencia o Runtime
+│   └── HealthComponentEditor.cs
 ├── Examples/
 │   └── DefaultHealth.asset
+├── Icons/
+│   └── HealthIcon.png
 └── Tests/
-    ├── Components.Health.Tests.asmdef
-    └── HealthComponentTests.cs
+    ├── Editor/                             ← testes EditMode (cálculo)
+    │   └── Components.Health.Tests.Editor.asmdef
+    └── Runtime/                            ← testes PlayMode (física, cena), só se necessário
+        └── Components.Health.Tests.asmdef
 ```
+
+A separação `Runtime/`, `Editor/` e `Tests/` segue a [recomendação da Unity](https://docs.unity3d.com/6/Documentation/Manual/cus-asmdef.html). Código de editor fora de um assembly só de Editor quebra o build do jogo.
+
+### Convenções e controle de versão
+
+As da [Unity](https://unity.com/how-to/organizing-your-project), que evitam conflitos e erros de importação:
+
+- Pastas e arquivos em PascalCase, sem espaços (as ferramentas de linha de comando da Unity têm problemas com espaços).
+- Namespaces espelham as pastas: `Components.Health` em `Components/Health/`. Em projetos de estúdio, prefixe com o nome do estúdio (`Estudio.Components.Health`).
+- Assets de terceiros fora de `Assets/_Project/`, nunca misturados com os seus.
+- `.meta` sempre no controle de versão, e mover ou renomear assets só de dentro do editor, para o `.meta` ir junto.
+- Em Project Settings → Editor: **Asset Serialization = Force Text** e **Version Control = Visible Meta Files**.
+- Dividir trabalho em prefabs (inclusive aninhados) em vez de editar a cena: diffs menores e menos conflitos. Para os conflitos que sobrarem, configure o merge YAML da Unity (UnityYAMLMerge) no Git.
+- Um modelo de script em `Assets/ScriptTemplates/` com o cabeçalho padrão do projeto.
 
 ## Comunicação e injeção
 
@@ -409,12 +447,14 @@ Valor padrão de um asset: defina em **Default References** no Inspector do scri
 - `transform.parent` ou `GetComponentInParent` para alcançar algo fora do próprio prefab.
 - Passar o `GameContext` inteiro para um componente.
 
+**Por que não usar event channels em ScriptableObject.** A Unity [recomenda esse padrão](https://unity.com/how-to/scriptableobjects-event-channels-game-code) como alternativa a singletons: um asset com um evento, que objetos de qualquer cena assinam. Este guia não o adota por dois motivos: ScriptableObject aqui só guarda dado, e a própria Unity reconhece que encadear canais deixa o fluxo difícil de rastrear. O `GameEvents` resolve o mesmo problema com eventos que chegam pelo contexto. Um projeto em que designers precisem ligar eventos entre cenas sem código pode adotar os canais e registrar o desvio no TDD.
+
 ### Portão e outras regras de jogo
 
 Regra de negócio é do jogo. O `LockComponent` só guarda o estado e expõe um campo que descreve a condição; quem decide quando ela vale é o jogo.
 
 ```csharp
-// Components/Level/LockComponent.cs
+// Components/Level/Runtime/LockComponent.cs
 namespace Components.Level
 {
     /// <summary>
@@ -456,7 +496,7 @@ Um avaliador genérico de condições só vale a pena quando houver muitas regra
 Um ScriptableObject de dados tem um script que define o **tipo** (só campos `[SerializeField]` e propriedades de leitura) e cada `.asset` é uma **instância** com valores, criada pelo menu `Create`. O script não tem método nem evento, e todo ScriptableObject de dados termina em `Data` (`HealthData`, `DropTableData`). O asset pode apontar para outros assets, prefabs e cenas, mas não tem comportamento: quem executa é um componente ou uma função estática. Objetos de runtime que não são asset nem são salvos (como o `DropResult`) não levam o sufixo.
 
 ```csharp
-// Components/Drops/DropEntryData.cs
+// Components/Drops/Runtime/DropEntryData.cs
 namespace Components.Drops
 {
     /// <summary>One possible drop. Fields only, no rules.</summary>
@@ -475,7 +515,7 @@ namespace Components.Drops
     }
 }
 
-// Components/Drops/DropTableData.cs
+// Components/Drops/Runtime/DropTableData.cs
 namespace Components.Drops
 {
     /// <summary>A list of possible drops. Fields only, no rules.</summary>
@@ -519,7 +559,7 @@ Cada jogo decide em que categoria cada dado cai.
 Decisão fechada: **uma classe C# por estado**, guardadas por uma `StateMachine<TOwner>`. A Unity não tem a árvore de nós do Godot, e um MonoBehaviour por estado traria custo de GameObject e ordem de `Update` imprevisível. A máquina e a base `State<TOwner>` são um componente portável (`Components/StateMachine`, com No Engine References). O dono chama `Tick()` no próprio `Update`, e os estados recebem o dono tipado, sem cast.
 
 ```csharp
-// Components/StateMachine/State.cs
+// Components/StateMachine/Runtime/State.cs
 namespace Components.StateMachine
 {
     /// <summary>A single state. Owned by a StateMachine; requests changes through Machine.</summary>
@@ -540,7 +580,7 @@ namespace Components.StateMachine
     }
 }
 
-// Components/StateMachine/StateMachine.cs
+// Components/StateMachine/Runtime/StateMachine.cs
 namespace Components.StateMachine
 {
     /// <summary>Switches between states. Raises StateChanged.</summary>
@@ -610,7 +650,7 @@ Os estados são criados uma vez pelo dono e reaproveitados, então não geram li
 | Código de `Game/` | Opcional. Vale para regras que já quebraram uma vez |
 
 ```csharp
-// Components/Drops/Tests/DropsTests.cs
+// Components/Drops/Tests/Editor/DropsTests.cs
 using NUnit.Framework;
 using UnityEngine;
 
@@ -671,7 +711,7 @@ A segunda regra exige referências por nome nos `.asmdef` de componente (desligu
 O componente de drops responde a uma pergunta: dada uma tabela, o que cai? Ele não sabe quem morreu, onde, nem o que é um item. Por só calcular, o `.asmdef` dele pode ficar quase sem engine: só usa `ScriptableObject` dos dados.
 
 ```csharp
-// Components/Drops/Drops.cs
+// Components/Drops/Runtime/Drops.cs
 using System.Collections.Generic;
 
 namespace Components.Drops
@@ -798,3 +838,10 @@ As regras valem para qualquer Unity 6.x. Alguns detalhes dependem da versão; se
 | Unity Test Framework | Pacote 1.x | — |
 
 Referência atual: Unity 6.5. Ao migrar de versão, revise esta tabela e o pre-commit.
+
+## Referências
+
+- [Organizing your project](https://unity.com/how-to/organizing-your-project): convenções de nomes, cenas aditivas, prefabs aninhados, `.meta`, namespaces por pasta.
+- [Assembly definitions (Unity 6)](https://docs.unity3d.com/6/Documentation/Manual/cus-asmdef.html): assemblies `Runtime`, `Editor` e de testes.
+- [ScriptableObject event channels](https://unity.com/how-to/scriptableobjects-event-channels-game-code) e o e-book [Create modular game architecture with ScriptableObjects](https://unity.com/resources/create-modular-game-architecture-scriptableobjects-unity-6): o padrão que este guia troca pelo `GameEvents`, e por quê.
+- [Arquitetura Modular para Godot](arquitetura-godot.md): o guia irmão, com os mesmos princípios.
